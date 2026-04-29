@@ -5,7 +5,7 @@ function Navbar() {
   return (
     <div className='outerContainer'>
       <div className='website-title'>
-        Website Name
+        GrocerEase
       </div>
       <nav className="navbar">
         <div className="navbar-links">

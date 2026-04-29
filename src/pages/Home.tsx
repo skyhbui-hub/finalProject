@@ -3,6 +3,16 @@ import './Home.css'
 function Home() {
   return (
     <div className="home">
+      <h1>
+        Description
+      </h1>
+
+      <h1>
+        Purpose
+      </h1>
+
+
+
       <div className="hero" style={{ backgroundImage: `url('/homeBackground.jpg')` }}>
         <div className="hero-overlay">
           <p className="hero-text">
