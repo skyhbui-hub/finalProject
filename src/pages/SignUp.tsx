@@ -35,61 +35,59 @@ function SignUp() {
     }
 
     return (
-        <section className="m-8 flex gap-4">
-            <div className="w-full mt24">
-                <div className="text-center">
-                    <h2 className="font-bold text-3xl mb-4">Create Account</h2>
-                    <p className="text-lg text-gray-600">Enter your details to create a new account.</p>
+        <div className="flex justify-center">
+            <div style={{ backgroundColor: 'white', borderRadius: '24px', border: '1px solid #1f2937', padding: '40px', width: '100%', maxWidth: '600px', marginTop: '20px' }}>
+                <h2 style={{ textAlign: 'center', fontSize: '24px', marginBottom: '24px' }}>Create Account</h2>
+                <div style={{ backgroundColor: '#e5e7eb', borderRadius: '24px', padding: '40px' }}>
+                    <form onSubmit={onSubmit} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <label style={{ fontSize: '20px', width: '160px', textAlign: 'right' }}>Email:</label>
+                            <input
+                                type="email"
+                                placeholder="name@mail.com"
+                                style={{ borderRadius: '999px', border: '1px solid #1f2937', padding: '8px 24px', width: '250px', backgroundColor: 'white' }}
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <label style={{ fontSize: '20px', width: '160px', textAlign: 'right' }}>Password:</label>
+                            <input
+                                type="password"
+                                placeholder="********"
+                                style={{ borderRadius: '999px', border: '1px solid #1f2937', padding: '8px 24px', width: '250px', backgroundColor: 'white' }}
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <label style={{ fontSize: '20px', width: '160px', textAlign: 'right' }}>Confirm Password:</label>
+                            <input
+                                type="password"
+                                placeholder="********"
+                                style={{ borderRadius: '999px', border: '1px solid #1f2937', padding: '8px 24px', width: '250px', backgroundColor: 'white' }}
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                required
+                            />
+                        </div>
+                        {errorMessage && <p style={{ color: 'red', fontSize: '14px' }}>{errorMessage}</p>}
+                        <button
+                            type="submit"
+                            disabled={isSigningUp}
+                            style={{ borderRadius: '999px', border: '1px solid #1f2937', padding: '8px 32px', backgroundColor: '#f5f0e8', cursor: isSigningUp ? 'not-allowed' : 'pointer' }}
+                        >
+                            {isSigningUp ? 'Creating Account...' : 'Create Account'}
+                        </button>
+                        <Link to="/sign-in" style={{ textDecoration: 'underline', color: '#1f2937', fontSize: '14px' }}>
+                            Already have an account? Sign In
+                        </Link>
+                    </form>
                 </div>
-                <form onSubmit={onSubmit} className="mt-8 mb-2 mx-auto w-80 max-w-screen-lg lg:w-1/2 flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-gray-700">Email</label>
-                        <input
-                            type="email"
-                            placeholder="name@mail.com"
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-900"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-gray-700">Password</label>
-                        <input
-                            type="password"
-                            placeholder="********"
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-900"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-gray-700">Confirm Password</label>
-                        <input
-                            type="password"
-                            placeholder="********"
-                            className="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:border-gray-900"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            required
-                        />
-                    </div>
-                    {errorMessage && <p className="text-red-500 text-sm font-bold">{errorMessage}</p>}
-                    <button
-                        type="submit"
-                        disabled={isSigningUp}
-                        className={`mt-2 py-2 rounded-lg text-white font-medium ${isSigningUp ? 'bg-gray-300 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700'}`}
-                    >
-                        {isSigningUp ? 'Creating Account...' : 'Create Account'}
-                    </button>
-                    <p className="text-center text-gray-500 mt-2">
-                        Already have an account?{' '}
-                        <Link to="/sign-in" className="text-gray-900 font-medium">Sign In</Link>
-                    </p>
-                </form>
             </div>
-        </section>
+        </div>
     );
 }
 
