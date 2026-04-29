@@ -30,7 +30,7 @@ function SignIn() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f0e8]">
+    <div className="flex justify-center bg-[#f5f0e8]">
       <div className="!bg-white rounded-3xl border border-gray-800 p-10 w-full max-w-2xl shadow-sm">
         <h2 className="text-center text-2xl font-semibold mb-6">Sign In</h2>
         <div className="bg-gray-200 rounded-3xl p-10">

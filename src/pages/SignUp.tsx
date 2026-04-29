@@ -36,7 +36,7 @@ function SignUp() {
 
     return (
         <section className="m-8 flex gap-4">
-            <div className="w-full mt-24">
+            <div className="w-full mt24">
                 <div className="text-center">
                     <h2 className="font-bold text-3xl mb-4">Create Account</h2>
                     <p className="text-lg text-gray-600">Enter your details to create a new account.</p>
