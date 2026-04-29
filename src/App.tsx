@@ -6,6 +6,7 @@ import SearchByName from './pages/SearchByName'
 import ShoppingList from './pages/ShoppingList'
 import SignIn from './pages/SignIn'
 import RecipeDetail from './pages/RecipeDetail'
+import SignUp from './pages/SignUp'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/search-by-name" element={<SearchByName />} />
         <Route path="/view-shopping-list" element={<ShoppingList />} />
         <Route path="/sign-in" element={<SignIn />} />
+        <Route path="/sign-up" element={<SignUp />} />
         <Route path="/recipe/:id" element={<RecipeDetail />} />
       </Routes>
     </Router>

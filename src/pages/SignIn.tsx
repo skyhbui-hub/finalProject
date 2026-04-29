@@ -1,93 +1,76 @@
-import { useEffect, useState } from 'react'
-import axios from 'axios'
-import { useNavigate } from 'react-router-dom'
-import './SignIn.css'
+import { useState } from 'react';
+import { Navigate, Link } from 'react-router-dom';
+import { doSignInWithEmailAndPassword } from '../../firebase/auth';
+import { useAuth } from '../../contexts/authContext';
 
-interface Favorite {
-  _id: string
-  mealId: string
-  name: string
-  thumbnail: string
-  category: string
-  note: string
-}
+function SignIn() {
+  const { userLoggedIn } = useAuth();
 
-function Favorites() {
-  const [favorites, setFavorites] = useState<Favorite[]>([])
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [noteInput, setNoteInput] = useState('')
-  const navigate = useNavigate()
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [isSigningIn, setIsSigningIn] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
-  useEffect(() => {
-    fetchFavorites()
-  }, [])
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isSigningIn) {
+      setIsSigningIn(true);
+      try {
+        await doSignInWithEmailAndPassword(email, password);
+      } catch (err) {
+        setErrorMessage('Failed to sign in');
+      } finally {
+        setIsSigningIn(false);
+      }
+    }
+  };
 
-  const fetchFavorites = async () => {
-    const response = await axios.get('http://localhost:3001/favorites')
-    setFavorites(response.data)
-  }
-
-  const handleDelete = async (id: string) => {
-    await axios.delete(`http://localhost:3001/favorites/${id}`)
-    setFavorites(favorites.filter(f => f._id !== id))
-  }
-
-  const handleEditSave = async (id: string) => {
-    await axios.put(`http://localhost:3001/favorites/${id}`, { note: noteInput })
-    setFavorites(favorites.map(f =>
-      f._id === id ? { ...f, note: noteInput } : f
-    ))
-    setEditingId(null)
-    setNoteInput('')
+  if (userLoggedIn) {
+    return <Navigate to='/' replace />;
   }
 
   return (
-    <div className="favorites-page">
-      <p>This is the sign in page</p>
-      <div className="favorites-list">
-        {favorites.map((favorite) => (
-          <div className="favorite-item" key={favorite._id}>
-            <img
-              src={favorite.thumbnail}
-              alt={favorite.name}
-              onClick={() => navigate(`/recipe/${favorite.mealId}`)}
-            />
-            <div className="favorite-info">
-              <h3 onClick={() => navigate(`/recipe/${favorite.mealId}`)}>
-                {favorite.name}
-              </h3>
-              <span>{favorite.category}</span>
-
-              {editingId === favorite._id ? (
-                <div className="note-edit">
-                  <input
-                    type="text"
-                    value={noteInput}
-                    onChange={(e) => setNoteInput(e.target.value)}
-                    placeholder="Add a note..."
-                  />
-                  <button onClick={() => handleEditSave(favorite._id)}>Save</button>
-                  <button onClick={() => setEditingId(null)}>Cancel</button>
-                </div>
-              ) : (
-                <div className="note-display">
-                  <p>{favorite.note || 'No note added'}</p>
-                  <button onClick={() => {
-                    setEditingId(favorite._id)
-                    setNoteInput(favorite.note)
-                  }}>Edit Note</button>
-                </div>
-              )}
+    <div className="min-h-screen flex items-center justify-center bg-[#f5f0e8]">
+      <div className="!bg-white rounded-3xl border border-gray-800 p-10 w-full max-w-2xl shadow-sm">
+        <h2 className="text-center text-2xl font-semibold mb-6">Sign In</h2>
+        <div className="bg-gray-200 rounded-3xl p-10">
+          <form onSubmit={onSubmit} className="flex flex-col items-center gap-6">
+            <div className="flex items-center gap-4 w-full justify-center">
+              <label className="text-xl font-medium w-36 text-right">Username:</label>
+              <input
+                type="email"
+                className="rounded-full border border-gray-800 px-6 py-2 w-64 bg-white shadow-inner focus:outline-none"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
             </div>
-
-            <button className="delete-btn" onClick={() => handleDelete(favorite._id)}>
-              Remove
+            <div className="flex items-center gap-4 w-full justify-center">
+              <label className="text-xl font-medium w-36 text-right">Password:</label>
+              <input
+                type="password"
+                className="rounded-full border border-gray-800 px-6 py-2 w-64 bg-white shadow-inner focus:outline-none"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {errorMessage && <p className="text-red-500 text-sm">{errorMessage}</p>}
+            <button
+              type="submit"
+              disabled={isSigningIn}
+              className="rounded-full border border-gray-800 px-8 py-2 bg-[#f5f0e8] hover:bg-gray-300 transition"
+            >
+              {isSigningIn ? 'Signing In...' : 'Login'}
             </button>
-          </div>
-        ))}
+            <Link to="/sign-up" className="underline text-gray-800 text-sm">
+              create new account
+            </Link>
+          </form>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Favorites
+export default SignIn;
