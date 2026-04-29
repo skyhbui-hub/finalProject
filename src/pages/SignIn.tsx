@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
-import './Favorites.css'
+import './SignIn.css'
 
 interface Favorite {
   _id: string
@@ -43,6 +43,7 @@ function Favorites() {
 
   return (
     <div className="favorites-page">
+      <p>This is the sign in page</p>
       <div className="favorites-list">
         {favorites.map((favorite) => (
           <div className="favorite-item" key={favorite._id}>

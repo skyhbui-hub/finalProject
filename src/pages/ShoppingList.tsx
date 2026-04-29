@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 
-function RandomRecipe() {
+function ShoppingList() {
   const navigate = useNavigate()
 
   const fetchRandom = async () => {
@@ -18,8 +18,8 @@ function RandomRecipe() {
   }, [])
 
   return (
-    <></>
+    <>This is the call </>
   )
 }
 
-export default RandomRecipe
+export default ShoppingList

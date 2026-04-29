@@ -54,6 +54,7 @@ function RecipeDetail() {
 
   return (
     <div className="recipe-detail">
+      <div>This is the way </div>
       <div className="recipe-header">
         <img src={meal.strMealThumb} alt={meal.strMeal} />
         <div className="recipe-header-info">
