@@ -10,76 +10,46 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- FatSecret Auth Logic ---
-let cachedToken = null;
-let tokenExpiry = 0;
-
-async function getFatSecretToken() {
-  const now = Math.floor(Date.now() / 1000);
-  
-  // Return cached token if valid (30s buffer)
-  if (cachedToken && now < tokenExpiry - 30) {
-    return cachedToken;
-  }
-
-  try {
-    const auth = Buffer.from(
-      `${process.env.FATSECRET_CLIENT_ID}:${process.env.FATSECRET_CLIENT_SECRET}`
-    ).toString('base64');
-
-    const response = await axios.post(
-      'https://oauth.fatsecret.com/connect/token',
-      'grant_type=client_credentials&scope=basic',
-      {
-        headers: {
-          Authorization: `Basic ${auth}`,
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-      }
-    );
-
-    cachedToken = response.data.access_token;
-    tokenExpiry = now + response.data.expires_in; 
-    return cachedToken;
-  } catch (error) {
-    console.error('Auth Error:', error.response?.data || error.message);
-    throw new Error('Failed to authenticate with FatSecret');
-  }
-}
-
 // --- Database Schema ---
-const favoriteSchema = new mongoose.Schema({
-  foodId: { type: String, required: true },
-  name: { type: String, required: true },
-  description: String, // Stores the macro summary string
-  category: String,
-  note: String
+const shoppingListSchema = new mongoose.Schema({
+  uid: String,
+  fdcId: Number,
+  description: String,  
+  brandName: String,
+  foodCategory: String,
+  calories: Number,
+  protein: Number,
+  fat: Number,
+  carbs: Number,
+  checked: { type: Boolean, default: false }
 });
 
-const Favorite = mongoose.model('Favorite', favoriteSchema);
+const ShoppingListItem = mongoose.model('ShoppingListItem', shoppingListSchema);
 
 // --- Routes ---
 
-// 1. Food Search
+// 1. Food Search via USDA
 app.get('/api/search', async (req, res) => {
   const foodQuery = req.query.food;
+  const brandQuery = req.query.brand;
 
   if (!foodQuery) {
-    return res.status(400).json({ error: 'Search term "food" is required' });
+    return res.status(400).json({ error: 'Search term is required' });
   }
 
   try {
-    const token = await getFatSecretToken();
-    const response = await axios.get('https://platform.fatsecret.com/rest/server.api', {
-      params: {
-        method: 'foods.search',
-        search_expression: foodQuery,
-        format: 'json',
-        max_results: 20
-      },
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
+    const response = await axios.get(
+      'https://api.nal.usda.gov/fdc/v1/foods/search',
+      {
+        params: {
+          query: foodQuery,
+          api_key: process.env.USDA_API_KEY,
+          pageSize: 20,
+          dataType: 'Branded',
+          ...(brandQuery && { brandOwner: brandQuery })
+        }
+      }
+    );
     res.json(response.data);
   } catch (error) {
     console.error('Search API Error:', error.response?.data || error.message);
@@ -87,66 +57,47 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
-app.get('/api/food/:id', async (req, res) => {
+// 2. Get shopping list for a user
+app.get('/shopping-list/:uid', async (req, res) => {
   try {
-    const token = await getFatSecretToken();
-    const response = await axios.get('https://platform.fatsecret.com/rest/server.api', {
-      params: {
-        method: 'food.get.v2', // or 'food.get'
-        food_id: req.params.id,
-        format: 'json'
-      },
-      headers: { Authorization: `Bearer ${token}` }
-    });
-
-    res.json(response.data);
+    const items = await ShoppingListItem.find({ uid: req.params.uid });
+    res.json(items);
   } catch (error) {
-    console.error('Detail API Error:', error.response?.data || error.message);
-    res.status(500).json({ error: 'Error retrieving food details' });
+    res.status(500).json({ error: 'Failed to fetch shopping list' });
   }
 });
 
-// 2. Get All Favorites
-app.get('/favorites', async (req, res) => {
+// 3. Add item to shopping list
+app.post('/shopping-list', async (req, res) => {
   try {
-    const favorites = await Favorite.find();
-    res.json(favorites);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch favorites' });
-  }
-});
-
-// 3. Add a Favorite
-app.post('/favorites', async (req, res) => {
-  try {
-    const newFavorite = new Favorite(req.body);
-    const saved = await newFavorite.save();
+    const item = new ShoppingListItem(req.body);
+    const saved = await item.save();
     res.status(201).json(saved);
   } catch (error) {
-    res.status(400).json({ error: 'Failed to save favorite' });
+    res.status(400).json({ error: 'Failed to save item' });
   }
 });
 
-// 4. Update Note on Favorite
-app.put('/favorites/:id', async (req, res) => {
+// 4. Toggle checked status
+app.put('/shopping-list/:id', async (req, res) => {
   try {
-    const updated = await Favorite.findByIdAndUpdate(
+    const updated = await ShoppingListItem.findByIdAndUpdate(
       req.params.id,
-      { note: req.body.note },
+      { checked: req.body.checked },
       { new: true }
     );
-    if (!updated) return res.status(404).json({ error: 'Favorite not found' });
+    if (!updated) return res.status(404).json({ error: 'Item not found' });
     res.json(updated);
   } catch (error) {
     res.status(400).json({ error: 'Update failed' });
   }
 });
 
-// 5. Delete Favorite
-app.delete('/favorites/:id', async (req, res) => {
+// 5. Delete item from shopping list
+app.delete('/shopping-list/:id', async (req, res) => {
   try {
-    const deleted = await Favorite.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Favorite not found' });
+    const deleted = await ShoppingListItem.findByIdAndDelete(req.params.id);
+    if (!deleted) return res.status(404).json({ error: 'Item not found' });
     res.json({ message: 'Deleted successfully' });
   } catch (error) {
     res.status(500).json({ error: 'Deletion failed' });
@@ -163,5 +114,5 @@ mongoose.connect(process.env.MONGODB_URI)
   })
   .catch((err) => {
     console.error('Database Connection Error:', err);
-    process.exit(1); // Exit if DB fails
+    process.exit(1);
   });

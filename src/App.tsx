@@ -16,7 +16,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/search-by-name" element={<SearchByName />} />
-        <Route path="/view-shopping-list" element={<ShoppingList />} />
+        <Route path="/saved-recipes" element={<ShoppingList />} />
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/recipe/:id" element={<RecipeDetail />} />
