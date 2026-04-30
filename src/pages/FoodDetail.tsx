@@ -3,6 +3,9 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import './FoodDetail.css';
 
+// Central API base (no localhost anywhere)
+const API_BASE = "/_/backend";
+
 interface Serving {
   serving_description: string;
   calories: string;
@@ -31,7 +34,9 @@ function FoodDetail() {
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const response = await axios.get(`http://localhost:3001/api/food/${id}`);
+        const response = await axios.get(
+          `${API_BASE}/api/food/${id}`
+        );
         setFood(response.data.food);
       } catch (err) {
         console.error("Error fetching food details", err);
@@ -39,24 +44,25 @@ function FoodDetail() {
         setLoading(false);
       }
     };
+
     fetchDetails();
   }, [id]);
 
-  // --- NEW: Add to Favorites Function ---
   const handleSaveFavorite = async () => {
     if (!food) return;
-    
+
     const servings = food.servings.serving;
     const mainServing = Array.isArray(servings) ? servings[0] : servings;
 
     try {
-      await axios.post('http://localhost:3001/favorites', {
+      await axios.post(`${API_BASE}/favorites`, {
         foodId: id,
         name: food.food_name,
         description: `Per ${mainServing.serving_description}: ${mainServing.calories}kcal`,
         category: food.brand_name || 'General',
         note: ''
       });
+
       alert('Added to your favorites!');
     } catch (err) {
       console.error("Failed to save favorite", err);
@@ -73,36 +79,44 @@ function FoodDetail() {
   return (
     <div className="detail-container">
       <div className="button-group" style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={() => navigate(-1)} className="back-button">← Back to Search</button>
-        
-        {/* --- NEW: Favorite Button --- */}
+        <button onClick={() => navigate(-1)} className="back-button">
+          ← Back to Search
+        </button>
+
         <button onClick={handleSaveFavorite} className="fav-button">
           ★ Save Favorite
         </button>
       </div>
-      
+
       <div className="food-header">
         <h1>{food.food_name}</h1>
-        {food.brand_name && <p className="brand">Brand: {food.brand_name}</p>}
+        {food.brand_name && (
+          <p className="brand">Brand: {food.brand_name}</p>
+        )}
       </div>
 
       <div className="nutrition-card">
         <h2>Nutrition Facts</h2>
-        <p className="serving-size">Serving: {mainServing.serving_description}</p>
-        
+        <p className="serving-size">
+          Serving: {mainServing.serving_description}
+        </p>
+
         <div className="macro-grid">
           <div className="macro-item">
             <span className="label">Calories</span>
             <span className="value">{mainServing.calories}</span>
           </div>
+
           <div className="macro-item protein">
             <span className="label">Protein</span>
             <span className="value">{mainServing.protein}g</span>
           </div>
+
           <div className="macro-item carbs">
             <span className="label">Carbs</span>
             <span className="value">{mainServing.carbohydrate}g</span>
           </div>
+
           <div className="macro-item fat">
             <span className="label">Fat</span>
             <span className="value">{mainServing.fat}g</span>

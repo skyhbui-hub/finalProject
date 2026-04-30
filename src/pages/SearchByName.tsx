@@ -35,7 +35,7 @@ function SearchByName() {
     setIsLoading(true);
     try {
       const response = await axios.get(
-        `http://localhost:3001/api/search?food=${encodeURIComponent(query)}${brand ? `&brand=${encodeURIComponent(brand)}` : ''}`
+        `/_/backend/api/search?food=${encodeURIComponent(query)}${brand ? `&brand=${encodeURIComponent(brand)}` : ''}`
       );
       setResults(response.data.foods || []);
       setSearched(true);

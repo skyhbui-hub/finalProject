@@ -10,11 +10,27 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// --- Database Schema ---
+// --- DB CONNECTION (FIXED) ---
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+  await mongoose.connect(process.env.MONGODB_URI);
+  isConnected = true;
+  console.log("Connected to MongoDB");
+};
+
+// ensure DB before routes
+app.use(async (req, res, next) => {
+  await connectDB();
+  next();
+});
+
+// --- Schema ---
 const shoppingListSchema = new mongoose.Schema({
   uid: String,
   fdcId: Number,
-  description: String,  
+  description: String,
   brandName: String,
   foodCategory: String,
   calories: Number,
@@ -27,8 +43,6 @@ const shoppingListSchema = new mongoose.Schema({
 const ShoppingListItem = mongoose.model('ShoppingListItem', shoppingListSchema);
 
 // --- Routes ---
-
-// 1. Food Search via USDA
 app.get('/api/search', async (req, res) => {
   const foodQuery = req.query.food;
   const brandQuery = req.query.brand;
@@ -52,69 +66,35 @@ app.get('/api/search', async (req, res) => {
     );
     res.json(response.data);
   } catch (error) {
-    console.error('Search API Error:', error.response?.data || error.message);
+    console.error(error.message);
     res.status(500).json({ error: 'Error retrieving food data' });
   }
 });
 
-// 2. Get shopping list for a user
 app.get('/shopping-list/:uid', async (req, res) => {
-  try {
-    const items = await ShoppingListItem.find({ uid: req.params.uid });
-    res.json(items);
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to fetch shopping list' });
-  }
+  const items = await ShoppingListItem.find({ uid: req.params.uid });
+  res.json(items);
 });
 
-// 3. Add item to shopping list
 app.post('/shopping-list', async (req, res) => {
-  try {
-    const item = new ShoppingListItem(req.body);
-    const saved = await item.save();
-    res.status(201).json(saved);
-  } catch (error) {
-    res.status(400).json({ error: 'Failed to save item' });
-  }
+  const item = new ShoppingListItem(req.body);
+  const saved = await item.save();
+  res.status(201).json(saved);
 });
 
-// 4. Toggle checked status
 app.put('/shopping-list/:id', async (req, res) => {
-  try {
-    const updated = await ShoppingListItem.findByIdAndUpdate(
-      req.params.id,
-      { checked: req.body.checked },
-      { new: true }
-    );
-    if (!updated) return res.status(404).json({ error: 'Item not found' });
-    res.json(updated);
-  } catch (error) {
-    res.status(400).json({ error: 'Update failed' });
-  }
+  const updated = await ShoppingListItem.findByIdAndUpdate(
+    req.params.id,
+    { checked: req.body.checked },
+    { new: true }
+  );
+  res.json(updated);
 });
 
-// 5. Delete item from shopping list
 app.delete('/shopping-list/:id', async (req, res) => {
-  try {
-    const deleted = await ShoppingListItem.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ error: 'Item not found' });
-    res.json({ message: 'Deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Deletion failed' });
-  }
+  await ShoppingListItem.findByIdAndDelete(req.params.id);
+  res.json({ message: 'Deleted successfully' });
 });
 
-// --- Server & DB Connection ---
-const PORT = process.env.PORT || 3001;
-
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('Connected to MongoDB!');
-    // app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  })
-  .catch((err) => {
-    console.error('Database Connection Error:', err);
-    process.exit(1);
-  });
-
-  module.exports = app;
+// --- EXPORT FOR VERCEL ---
+module.exports = app;

@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import axios from 'axios';
 import { useAuth } from '../authContext';
 
+const API_BASE = "/_/backend";
+
 interface ShoppingItem {
   _id?: string;
   fdcId: number;
@@ -37,17 +39,18 @@ export function ShoppingListProvider({ children }: { children: ReactNode }) {
   // Load from MongoDB if logged in
   useEffect(() => {
     if (currentUser) {
-      axios.get(`http://localhost:3001/shopping-list/${currentUser.uid}`)
+      axios
+        .get(`${API_BASE}/shopping-list/${currentUser.uid}`)
         .then(res => setItems(res.data))
         .catch(err => console.error('Failed to load list', err));
     } else {
-      setItems([]); // clear list on sign out
+      setItems([]);
     }
   }, [currentUser]);
 
   const addItem = async (item: ShoppingItem) => {
     if (currentUser) {
-      const res = await axios.post('http://localhost:3001/shopping-list', {
+      const res = await axios.post(`${API_BASE}/shopping-list`, {
         ...item,
         uid: currentUser.uid
       });
@@ -59,27 +62,39 @@ export function ShoppingListProvider({ children }: { children: ReactNode }) {
 
   const removeItem = async (fdcId: number) => {
     const item = items.find(i => i.fdcId === fdcId);
+
     if (currentUser && item?._id) {
-      await axios.delete(`http://localhost:3001/shopping-list/${item._id}`);
+      await axios.delete(`${API_BASE}/shopping-list/${item._id}`);
     }
+
     setItems(prev => prev.filter(i => i.fdcId !== fdcId));
   };
 
   const toggleChecked = async (fdcId: number) => {
     const item = items.find(i => i.fdcId === fdcId);
     if (!item) return;
+
     const updated = { ...item, checked: !item.checked };
+
     if (currentUser && item._id) {
-      await axios.put(`http://localhost:3001/shopping-list/${item._id}`, { checked: updated.checked });
+      await axios.put(`${API_BASE}/shopping-list/${item._id}`, {
+        checked: updated.checked
+      });
     }
-    setItems(prev => prev.map(i => i.fdcId === fdcId ? updated : i));
+
+    setItems(prev =>
+      prev.map(i => (i.fdcId === fdcId ? updated : i))
+    );
   };
 
   return (
-    <ShoppingListContext.Provider value={{ items, addItem, removeItem, toggleChecked }}>
+    <ShoppingListContext.Provider
+      value={{ items, addItem, removeItem, toggleChecked }}
+    >
       {children}
     </ShoppingListContext.Provider>
   );
 }
 
-export const useShoppingList = () => useContext(ShoppingListContext);
+export const useShoppingList = () =>
+  useContext(ShoppingListContext);
