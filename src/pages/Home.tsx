@@ -6,7 +6,7 @@ function Home() {
       <div className="hero" style={{ backgroundImage: `url('/homeBackground.jpg')` }}>
         <div className="hero-overlay">
           <p className="hero-text">
-          Stop overpaying for groceries. Compare prices across stores near you and start saving today.
+          Stop worrying about what to make. Let <b>GrocerEase</b> choose what you need. Affordable, reliable ingredients and healthy, easy recipes is a search away.
           </p>
         </div>
       </div>
