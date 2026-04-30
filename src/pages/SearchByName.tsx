@@ -66,14 +66,14 @@ function SearchByName() {
           <div
             className="food-card" 
             key={food.food_id}
-            style={{ cursor: 'pointer' }} // Visual hint that it's clickable
+            style={{ cursor: 'pointer' }}
+            onClick={() => navigate(`/food/${food.food_id}`)} // Add this line
           >
             <div className="food-card-info">
               <h3>
                 {food.brand_name ? `${food.brand_name} - ` : ''}
                 {food.food_name}
               </h3>
-              {/* This summary string often contains the macros */}
               <p>{food.food_description}</p> 
             </div>
           </div>

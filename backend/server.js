@@ -87,6 +87,25 @@ app.get('/api/search', async (req, res) => {
   }
 });
 
+app.get('/api/food/:id', async (req, res) => {
+  try {
+    const token = await getFatSecretToken();
+    const response = await axios.get('https://platform.fatsecret.com/rest/server.api', {
+      params: {
+        method: 'food.get.v2', // or 'food.get'
+        food_id: req.params.id,
+        format: 'json'
+      },
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    res.json(response.data);
+  } catch (error) {
+    console.error('Detail API Error:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Error retrieving food details' });
+  }
+});
+
 // 2. Get All Favorites
 app.get('/favorites', async (req, res) => {
   try {
@@ -135,7 +154,7 @@ app.delete('/favorites/:id', async (req, res) => {
 });
 
 // --- Server & DB Connection ---
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
