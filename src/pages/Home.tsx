@@ -6,7 +6,7 @@ function Home() {
       <div className="hero" style={{ backgroundImage: `url('/homeBackground.jpg')` }}>
         <div className="hero-overlay">
           <p className="hero-text">
-          Stop worrying about what to make. Let <b>GrocerEase</b> choose what you need. Affordable, reliable ingredients and healthy, easy recipes is a search away.
+          Stop stressing about what to buy. Let <b>GrocerEase</b> do the searching for you. Thousands of branded products and their full nutritional info, all in one place.
           </p>
         </div>
       </div>
@@ -16,9 +16,10 @@ function Home() {
           Description
         </h2>
         <p className='pb-6'>
-          Our grocery & recipe search tool makes it simple to decide the best ingredients to feed you and your loved ones. Powered by the fatSecret Platform API and MealsDB, our platform 
-          allows you to search for the best ingredients, their nutritional value, and where to purchase them. Additionally, this platform carries ease of mind when looking for recipes.
-          Specifically, it offers various recipes from around the world, recipe instructions, and relevantly, the ingredients to make it. Worry no more. This week's meal is powered by GrocerEase.
+        Our grocery search tool makes it simple to find and track the best ingredients for you and your loved ones. Powered by the USDA FoodData Central API, our platform 
+        allows you to search for thousands of branded grocery products, view their full nutritional information, and build a personalized shopping list all in one place. 
+        Whether you're tracking macros, planning meals, or just trying to eat better, GrocerEase takes the guesswork out of grocery shopping. Create an account to save your 
+        list permanently, or use it as a guest for a quick session. This week's groceries, powered by GrocerEase.
         </p>
       </section>
 
