@@ -6,6 +6,7 @@ import SearchByName from './pages/SearchByName'
 import ShoppingList from './pages/ShoppingList'
 import SignIn from './pages/SignIn'
 import RecipeDetail from './pages/RecipeDetail'
+import FoodDetail from './pages/FoodDetail' // 1. Import the new component
 import SignUp from './pages/SignUp'
 
 function App() {
@@ -19,6 +20,9 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/recipe/:id" element={<RecipeDetail />} />
+        
+        {/* 2. Add the dynamic route for food macros */}
+        <Route path="/food/:id" element={<FoodDetail />} />
       </Routes>
     </Router>
   )
